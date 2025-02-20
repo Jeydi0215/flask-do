@@ -5,7 +5,7 @@ from cvzone.HandTrackingModule import HandDetector
 
 try:
     import keras
-    keras.config.use_backend("tensorflow")  # Ensure TensorFlow backend for Keras 3.x
+    keras.config.set_backend("tensorflow")  # Ensure TensorFlow backend for Keras 3.x
     from keras.models import load_model
 except ImportError:
     from tensorflow.keras.models import load_model  # Fallback if keras is not installed
