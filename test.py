@@ -21,7 +21,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "https://salinterpret.vercel.app"}})
 
 # Path to model
-model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'salinterpret.h5')
+model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'new.h5')
 
 if not os.path.exists(model_path):
     raise FileNotFoundError(f"Model file not found at: {model_path}")
