@@ -3,12 +3,8 @@ from flask_cors import CORS, cross_origin
 import cv2
 from cvzone.HandTrackingModule import HandDetector
 
-try:
-    import keras
-    keras.config.set_backend("tensorflow")  # Ensure TensorFlow backend for Keras 3.x
-    from keras.models import load_model
-except ImportError:
-    from tensorflow.keras.models import load_model  # Fallback if keras is not installed
+# Ensure TensorFlow is used properly
+from tensorflow.keras.models import load_model
 
 import numpy as np
 import math
@@ -49,21 +45,26 @@ def translate_image(img):
     if hands:
         hand = hands[0]
         x, y, w, h = hand['bbox']
-        
+
         imgSize = 300
         imgWhite = np.ones((imgSize, imgSize, 3), np.uint8) * 255
-        imgCrop = img[y - 20:y + h + 20, x - 20:x + w + 20]
 
-        aspectRatio = h / w
+        # Ensure crop stays within bounds
+        y1, y2 = max(0, y - 20), min(img.shape[0], y + h + 20)
+        x1, x2 = max(0, x - 20), min(img.shape[1], x + w + 20)
+        imgCrop = img[y1:y2, x1:x2]
+
+        aspectRatio = h / w if w != 0 else 1  # Prevent division by zero
+
         if aspectRatio > 1:
             k = imgSize / h
-            wCal = math.ceil(k * w)
+            wCal = max(1, math.ceil(k * w))  # Avoid zero width
             imgResize = cv2.resize(imgCrop, (wCal, imgSize))
             wGap = math.ceil((imgSize - wCal) / 2)
             imgWhite[:, wGap:wCal + wGap] = imgResize
         else:
             k = imgSize / w
-            hCal = math.ceil(k * h)
+            hCal = max(1, math.ceil(k * h))  # Avoid zero height
             imgResize = cv2.resize(imgCrop, (imgSize, hCal))
             hGap = math.ceil((imgSize - hCal) / 2)
             imgWhite[hGap:hCal + hGap, :] = imgResize
